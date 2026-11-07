@@ -48,6 +48,7 @@ services:
       # Model file mounted dynamically at runtime
       - ./app/model:/app/app/model:ro
       - ./reports:/app/reports
+      - ./tests:/app/tests:ro
     depends_on:
       db:
         condition: service_healthy

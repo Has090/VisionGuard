@@ -28,4 +28,8 @@ notebooks/
 
 # Temporary OS files
 .DS_Store
-Thumbs.db
+Thumbs.dbapp/model/
+app/model/*.keras
+**/__pycache__
+**/.pytest_cache
+*.pyc
