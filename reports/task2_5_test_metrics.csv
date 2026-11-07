@@ -1,0 +1,4 @@
+Model,Accuracy,Precision,Recall,F1-Score,ROC-AUC
+Baseline Custom CNN (Default Thresh 0.50),0.449,0.0,0.0,0.0,0.4594
+MobileNetV2 Champion (Default Thresh 0.50),0.7891,0.7976,0.8272,0.8121,0.8504
+MobileNetV2 Champion (Optimized Thresh 0.20),0.7551,0.7027,0.963,0.8125,0.8504

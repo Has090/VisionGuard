@@ -1,0 +1,17 @@
+{
+    "model_name": "VisionGuard_MobileNetV2_Champion",
+    "architecture": "MobileNetV2 Transfer Learning",
+    "input_shape": [
+        224,
+        224,
+        3
+    ],
+    "target_classes": {
+        "0": "RealArt",
+        "1": "AiArtData"
+    },
+    "decision_threshold": 0.5,
+    "preprocessing": "mobilenet_v2.preprocess_input [-1.0, 1.0]",
+    "framework": "TensorFlow 2.21.0",
+    "source_checkpoint": "models\\mobilenetv2_stage2_champion_best.keras"
+}

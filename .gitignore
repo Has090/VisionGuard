@@ -5,3 +5,17 @@ __pycache__/
 .env
 .dvc/cache/
 "@ | Set-Content -Encoding utf8 .gitignore
+reports/tuner_toy/
+
+.env
+# Ignore heavy weights and local caches
+models/
+app/model/*.keras
+mlflow.db
+mlruns/
+reports/visionguard.db
+reports/app_serving.log
+reports/user_feedback.jsonl
+reports/tuner_vg/
+__pycache__/
+.pytest_cache/

@@ -1,0 +1,31 @@
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Python cache & compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Datasets and training artifacts (do NOT bake 500MB+ data into container)
+data/
+archive.zip
+
+# Git & DVC internals
+.git/
+.gitignore
+.dvc/
+.dvcignore
+
+# Environment secrets
+.env
+
+# Raw notebooks and scratchpads
+notebooks/
+*.ipynb
+
+# Temporary OS files
+.DS_Store
+Thumbs.db

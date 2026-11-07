@@ -1,0 +1,40 @@
+version: "3.8"
+
+services:
+  visionguard-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: visionguard:v1
+    container_name: visionguard_container
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
+      - PORT=5000
+      - FLASK_ENV=production
+    volumes:
+      # Host bind mount ensuring database entries and server logs survive container destruction
+      - ./reports:/app/reports
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2048M
+        reservations:
+          cpus: "0.5"
+          memory: 512M
+    networks:
+      - visionguard-net
+
+networks:
+  visionguard-net:
+    driver: bridge

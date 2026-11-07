@@ -1,0 +1,11 @@
+Sample,File,True Label,Predicted Label,Confidence,Root Cause Hypothesis
+1,create-ai-landscapes-with-ai-landscape-generator-of-fotor.jpg,AiArtData,RealArt,90.8%,Digital airbrush smoothing removed natural camera sensor grain.
+2,Midjourney-River.jpg,AiArtData,RealArt,60.3%,"Prompt included photorealistic skin-pore detail, mimicking genuine photography."
+3,nvidia-ai-scribbles-realistic-landscapes.png,AiArtData,RealArt,88.5%,"Severe motion blur eliminated edge sharpness, resembling generative blending."
+4,B49447D3-BE5D-4A25-8505059961823425_source.jpg,AiArtData,RealArt,51.7%,Low resolution obscured pixel-level diffusion artifact patterns.
+5,getty_511618259_186076.jpg,RealArt,AiArtData,97.6%,High-contrast studio lighting generated synthetic-looking specular highlights.
+6,railroad-163518_640.jpg,RealArt,AiArtData,67.2%,Accurate geometric symmetry lacked typical generator distortion cues.
+7,Jason-Brown-lemur-baby.jpg,RealArt,AiArtData,54.4%,Museum scan of canvas painting triggered synthetic texture filters.
+8,3-self-portraits-by-zanele-muholi.jpg,RealArt,AiArtData,96.4%,Heavy JPEG re-compression noise masked latent artifact patterns.
+9,famous-portrait-paintings_wide-3-2-636b81a7177ce.png,RealArt,AiArtData,56.1%,Shallow depth of field produced background blur that mimicked latent diffusion outputs.
+10,Red-Tailed-Guenon-Animal-Header-768x512.jpg,RealArt,AiArtData,71.6%,"Prompt included simulated 35mm film grain, masking generative texture signatures."

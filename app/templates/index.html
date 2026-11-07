@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VisionGuard AI | Synthetic Art Detection</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="top-nav">
+        <button class="btn-history-trigger" id="open-history-btn">📜 Prediction History</button>
+      </div>
+      <h1>VisionGuard AI</h1>
+      <p>Autonomous Verification Pipeline for Generative vs. Authentic Artworks</p>
+      <div class="system-meta">
+        <span>Model: {{ metadata.model_name or 'VisionGuard_MobileNetV2_Champion' }}</span>
+        <span>Threshold: {{ metadata.decision_threshold }}</span>
+        <span>Status: Online</span>
+      </div>
+    </header>
+
+    <!-- Upload Card -->
+    <div class="card">
+      <div class="dropzone" id="dropzone">
+        <div class="dropzone-icon">📷</div>
+        <p>Drag and drop image here, or click to browse</p>
+        <small>Supported formats: JPG, JPEG, PNG, WEBP (Max 10 MB)</small>
+      </div>
+      <input type="file" id="file-input" accept=".jpg,.jpeg,.png,.webp">
+
+      <!-- Preview -->
+      <div class="preview-container" id="preview-container">
+        <img id="preview-image" src="" alt="Selected Preview">
+        <div class="btn-row">
+          <button class="btn btn-secondary" id="reset-btn">Change Image</button>
+          <button class="btn btn-primary" id="submit-btn" disabled>Analyze Artwork</button>
+        </div>
+      </div>
+
+      <!-- Spinner -->
+      <div class="spinner-container" id="spinner-container">
+        <div class="spinner"></div>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Processing inference through neural tensor pipeline...</p>
+      </div>
+    </div>
+
+    <!-- Results Card -->
+    <div class="card result-card" id="result-card">
+      <div class="result-header">
+        <div id="badge" class="badge">Authentic Real Art</div>
+        <div class="latency-tag" id="latency-display">Latency: 0 ms</div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 0.9rem;">
+        <span>Model Confidence</span>
+        <span id="confidence-percent">0%</span>
+      </div>
+      <div class="confidence-bar-bg">
+        <div class="confidence-bar-fill" id="confidence-bar-fill"></div>
+      </div>
+
+      <div class="metrics-grid">
+        <div class="metric-item">
+          <small>Model Used</small>
+          <strong id="model-used-val" style="font-size: 0.85rem; color: var(--accent-cyan);">MobileNetV2</strong>
+        </div>
+        <div class="metric-item">
+          <small>Raw Sigmoid Score</small>
+          <strong id="raw-score">0.0000</strong>
+        </div>
+        <div class="metric-item">
+          <small>Applied Threshold</small>
+          <strong id="threshold-val">0.50</strong>
+        </div>
+      </div>
+
+      <!-- Feedback Area -->
+      <div class="feedback-box">
+        <p style="font-size: 0.85rem; font-weight: 600;">Is this prediction accurate?</p>
+        <div class="feedback-btns">
+          <button class="btn-feed" onclick="submitFeedback('correct')">👍 Correct</button>
+          <button class="btn-feed" onclick="submitFeedback('incorrect')">👎 Incorrect</button>
+        </div>
+        <p id="feedback-msg" style="font-size: 0.8rem; margin-top: 0.5rem;"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Modal (Task 5 Database UI) -->
+  <div class="modal-overlay" id="history-modal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div>
+          <h2>Database Audit Log</h2>
+          <small style="color: var(--text-muted); font-size: 0.78rem;">Answers: When, Which Model, What Was Decided, and How Confidently</small>
+        </div>
+        <button class="modal-close-btn" id="close-history-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="history-table-wrapper">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>When (Timestamp)</th>
+                <th>Which Model</th>
+                <th>Filename</th>
+                <th>What Was Decided</th>
+                <th>How Confidently</th>
+                <th>Latency</th>
+                <th>User Feedback</th>
+              </tr>
+            </thead>
+            <tbody id="history-tbody">
+              <tr>
+                <td colspan="8" style="text-align: center; color: var(--text-muted);">Loading database records...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
