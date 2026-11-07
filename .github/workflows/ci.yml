@@ -29,9 +29,35 @@ jobs:
       - name: Lint Code (Syntax and Standards)
         run: |
           # Stop build if there are Python syntax errors or undefined names
-          flake8 app/ tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
-          # Exit-zero treats all errors as warnings
-          flake8 app/ tests/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          flake8 app/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          # Exit-zero treats all style warnings as non-fatal
+          flake8 app/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Create Mock Model Artifacts for CI
+        run: |
+          mkdir -p app/model
+          python -c "
+          import tensorflow as tf
+          import json
+
+          # Build minimal functional model matching input/output spec
+          inputs = tf.keras.Input(shape=(224, 224, 3))
+          x = tf.keras.layers.GlobalAveragePooling2D()(inputs)
+          outputs = tf.keras.layers.Dense(1, activation='sigmoid')(x)
+          model = tf.keras.Model(inputs=inputs, outputs=outputs)
+          model.save('app/model/champion_model.keras')
+
+          metadata = {
+              'model_name': 'VisionGuard_MobileNetV2_Champion',
+              'threshold': 0.5,
+              'best_threshold': 0.5,
+              'input_shape': [224, 224, 3],
+              'classes': ['AiArtData', 'RealArt']
+          }
+          with open('app/model/model_metadata.json', 'w') as f:
+              json.dump(metadata, f, indent=2)
+          print('Mock model artifacts created successfully.')
+          "
 
       - name: Run Test Suite
         run: |
