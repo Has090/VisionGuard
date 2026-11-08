@@ -2,6 +2,7 @@ import os
 import time
 import json
 import logging
+import requests
 from datetime import datetime
 from pathlib import Path
 from flask import Flask, request, jsonify, render_template
@@ -16,6 +17,7 @@ from app.database import (
     get_system_analytics
 )
 
+CLOUD_MODEL_URL = "https://visionguard-api-cloud-1.onrender.com/predict"
 # Initialize Flask Application
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024  # 10 MB strict limit
@@ -133,38 +135,74 @@ def health():
 
 @app.route("/predict", methods=["POST"])
 def predict():
-    if "file" not in request.files and "image" not in request.files:
-        raise ValidationError("Missing file payload in form-data ('file' or 'image' key expected).", 400)
+    if "file" not in request.files:
+        return jsonify({"error": "No file uploaded"}), 400
 
-    uploaded_file = request.files.get("file") or request.files.get("image")
-    filename = uploaded_file.filename
+    file = request.files["file"]
+    if file.filename == "":
+        return jsonify({"error": "Empty filename selected"}), 400
 
-    # Validate image payload
-    image_bytes = validate_image_payload(uploaded_file)
+    filename = file.filename
+    start_time = time.time()
 
-    # In-memory inference
-    predictor = get_predictor()
-    result = predictor.predict(image_bytes)
-    result["filename"] = filename
-    result["model_name"] = predictor.metadata.get("model_name", "VisionGuard_MobileNetV2_Champion")
-    result["timestamp"] = datetime.utcnow().isoformat() + "Z"
+    try:
+        # Prepare file stream payload for the external Cloud API
+        files = {"file": (filename, file.stream, file.mimetype)}
+        
+        # Dispatch inference request to the Cloud Model API
+        cloud_response = requests.post(CLOUD_MODEL_URL, files=files, timeout=60)
+        
+        if cloud_response.status_code != 200:
+            return jsonify({
+                "error": "Cloud model inference failed",
+                "details": cloud_response.text
+            }), cloud_response.status_code
+        
+        result = cloud_response.json()
+        latency_ms = round((time.time() - start_time) * 1000, 2)
 
-    # Persist to SQLite (Answering: What was decided, When, By Which Model, and How Confidently)
-    client_ip = request.remote_addr or "127.0.0.1"
-    pred_id = record_prediction(
-        model_name=result["model_name"],
-        filename=filename,
-        prediction=result["prediction"],
-        confidence=result["confidence"],
-        raw_score=result["raw_score"],
-        threshold=result["threshold_applied"],
-        latency_ms=result["latency_ms"],
-        client_ip=client_ip
-    )
-    result["prediction_id"] = pred_id
+        prediction = result.get("prediction")
+        confidence = float(result.get("confidence", 0.0))
+        raw_score = float(result.get("raw_score", 0.0))
+        threshold_applied = float(result.get("threshold_applied", 0.5))
+        client_ip = request.remote_addr or "127.0.0.1"
 
-    return jsonify(result), 200
-    
+        # Log transaction into the local PostgreSQL database
+        record_prediction(
+            model_name="VisionGuard_Cloud_ONNX_Render",
+            filename=filename,
+            prediction=prediction,
+            confidence=confidence,
+            raw_score=raw_score,
+            threshold_applied=threshold_applied,
+            latency_ms=latency_ms,
+            client_ip=client_ip
+        )
+
+        # Return standard response format expected by both Web UI and API clients
+        if request.headers.get("Accept") == "application/json" or request.is_json:
+            return jsonify({
+                "status": "success",
+                "prediction": prediction,
+                "confidence": confidence,
+                "raw_score": raw_score,
+                "threshold_applied": threshold_applied,
+                "latency_ms": latency_ms,
+                "model_source": "Render_Cloud_Inference"
+            }), 200
+
+        return render_template(
+            "index.html",
+            prediction=prediction,
+            confidence=confidence,
+            latency_ms=latency_ms,
+            filename=filename,
+            model_name="VisionGuard_Cloud_ONNX_Render"
+        )
+
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": "Failed to connect to Cloud API", "details": str(e)}), 503
+
 
 @app.route("/feedback", methods=["POST"])
 def feedback():
